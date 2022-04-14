@@ -14,88 +14,138 @@ class digitalSignWidget(qtw.QWidget):
         self.initUI()
     
     def initUI(self):
-        def giveMe():
+        def pickFile():
             try:
-                p,q,e = keyg.pickKeyforMe()
-                ptextBox.setText(str(p))
-                qtextBox.setText(str(q))
-                etextBox.setText(str(e))
+                options = qtw.QFileDialog.Options()
+                options |= qtw.QFileDialog.DontUseNativeDialog
+                fileName, _ = qtw.QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All files (*)", options=options)
+                if fileName:
+                    ftextLabel.setText(fileName)
+                    FileDetail.setPlainText(str(open(fileName,"rb").read().decode("ISO-8859-1")))
+                else:
+                    ftextLabel.setText("Belum ada file dipilih!")
+                    FileDetail.setPlainText("")
             except Exception as e:
                 msg = QMessageBox()
-                msg.setText("Parameter gagal dipilih!")
-                msg.setInformativeText(f'Parameter gagal ditentukan karena {e}')
-                msg.setWindowTitle("Pengacakan gagal")
+                msg.setText("File gagal dipilih")
+                msg.setInformativeText(f'File anda gagal dipilih karena {e}')
+                msg.setWindowTitle("File gagal")
                 msg.exec_()
-        def generate():
+
+        def pickKey():
             try:
-                p = int(ptextBox.text())
-                q = int(qtextBox.text())
-                e = int(etextBox.text())
-                now = datetime.now()
-                name = saveLine.text()
-                keyg.createKeyFile(name,p,q,e)
-                s = datetime.now() - now
-                msg = QMessageBox()
-                msg.setText("Kunci berhasil dibuat!")
-                msg.setInformativeText(f'Kunci berhasil dibuat setelah {str(s)}\nKunci publik Anda dapat diakses di key/{saveLine.text()}.pub\nKunci privat Anda dapat diakses di key/{saveLine.text()}.pri ')
-                msg.setWindowTitle("Pembangkitan kunci berhasil")
-                msg.exec_()
+                options = qtw.QFileDialog.Options()
+                options |= qtw.QFileDialog.DontUseNativeDialog
+                fileName, _ = qtw.QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","Private key files (*.pri)", options=options)
+                if fileName:
+                    E,N = str(open(fileName,"rb").read().decode("ISO-8859-1")).split("|")
+                    ktextLabel.setText(f"E: {E}\nN: {N}")
+                else:
+                    ktextLabel.setText("Belum ada key dipilih!")
             except Exception as e:
                 msg = QMessageBox()
-                msg.setText("Kunci gagal dibuat!")
-                msg.setInformativeText(f'Kunci anda gagal dibuat karena {e}')
-                msg.setWindowTitle("Pembangkitan kunci gagal")
+                msg.setText("File key gagal dipilih")
+                msg.setInformativeText(f'File key anda gagal dipilih karena {e}')
+                msg.setWindowTitle("File gagal")
                 msg.exec_()
+
+        def sign():
+            try:
+                if (self.b1.isChecked()):
+                    print("PILIHAN 1")
+                elif (self.b2.isChecked()):
+                    print("PILIHAN 2")
+                else:
+                    print("ERROR")
+            except Exception as e:
+                msg = QMessageBox()
+                msg.setText("Tanda tangan gagal!")
+                msg.setInformativeText(f'Tanda tangan gagal dilakukan karena {e}')
+                msg.setWindowTitle("Tanda tangan gagal")
+                msg.exec_()
+
 
         self.layout = qtw.QGridLayout(self)
         self.setLayout(self.layout)
 
-        ParameterLayout = qtw.QGroupBox()
-        ParameterLayout.setLayout(qtw.QGridLayout())        
 
-        ptextLabel = qtw.QLabel("Parameter", self)
-        getFont = ptextLabel.font()
+        FilePickerLayout = qtw.QGroupBox()
+        FilePickerLayout.setLayout(qtw.QGridLayout())        
+
+        ftextLabel = qtw.QLabel("Pilih File", self)
+        getFont = ftextLabel.font()
         getFont.setBold(True)
-        ptextLabel.setFont(getFont)
+        ftextLabel.setFont(getFont)
 
-        ParameterLayout.layout().addWidget(ptextLabel,0,0,1,2,Qt.AlignTop)
+        FilePickerLayout.layout().addWidget(ftextLabel,0,0,1,2,Qt.AlignTop)
 
-        ptextLabel = qtw.QLabel("P:", self)
-        ptextBox = qtw.QLineEdit(self)
+        ftextLabel = qtw.QLabel("Tidak ada file dipilih!", self)
 
-        ParameterLayout.layout().addWidget(ptextLabel,1,0,Qt.AlignLeft)
-        ParameterLayout.layout().addWidget(ptextBox,1,1,Qt.AlignLeft)
-
-        qtextLabel = qtw.QLabel("Q:", self)
-        qtextBox = qtw.QLineEdit(self)
-
-        ParameterLayout.layout().addWidget(qtextLabel,2,0,Qt.AlignLeft)
-        ParameterLayout.layout().addWidget(qtextBox,2,1,Qt.AlignLeft)
-
-        etextLabel = qtw.QLabel("E:", self)
-        etextBox = qtw.QLineEdit(self)
-
-        ParameterLayout.layout().addWidget(etextLabel,3,0,Qt.AlignLeft)
-        ParameterLayout.layout().addWidget(etextBox,3,1,Qt.AlignLeft)
+        FilePickerLayout.layout().addWidget(ftextLabel,1,0,Qt.AlignLeft)
         
-        randomButton = qtw.QPushButton("Randomize Parameters")  
-        randomButton.clicked.connect(lambda: giveMe()) 
-        ParameterLayout.layout().addWidget(randomButton,4,0,1,2,Qt.AlignVCenter)
+        FilePickButton = qtw.QPushButton("Pilih File")  
+        FilePickButton.clicked.connect(lambda: pickFile()) 
+        FilePickerLayout.layout().addWidget(FilePickButton,4,0,1,2,Qt.AlignVCenter)
 
-        self.layout.addWidget(ParameterLayout,0,0)
+        self.layout.addWidget(FilePickerLayout,0,0)
 
-        saveBoxLayout = qtw.QGroupBox()
-        saveBoxLayout.setLayout(qtw.QVBoxLayout())
-        saveLabel = qtw.QLabel("Simpan Kunci", self)
-        saveLabel.setFont(getFont)
-        saveNameLabel = qtw.QLabel("Nama Kunci:", self)
-        saveLine = qtw.QLineEdit(self)
-        saveButton = qtw.QPushButton("Bangkitkan dan Simpan")  
-        saveButton.clicked.connect(lambda: generate()) 
 
-        saveBoxLayout.layout().addWidget(saveLabel,0,Qt.AlignTop)
-        saveBoxLayout.layout().addWidget(saveNameLabel,1,Qt.AlignVCenter)   
-        saveBoxLayout.layout().addWidget(saveLine,1,Qt.AlignVCenter)
-        saveBoxLayout.layout().addWidget(saveButton,2,Qt.AlignVCenter)
+        KeyPickerLayout = qtw.QGroupBox()
+        KeyPickerLayout.setLayout(qtw.QGridLayout())        
 
-        self.layout.addWidget(saveBoxLayout,0,1)
+        ktextLabel = qtw.QLabel("Pilih Kunci", self)
+        ktextLabel.setFont(getFont)
+
+        KeyPickerLayout.layout().addWidget(ktextLabel,0,0,1,2,Qt.AlignTop)
+
+        ktextLabel = qtw.QLabel("Tidak ada kunci dipilih", self)
+
+        KeyPickerLayout.layout().addWidget(ktextLabel,1,0,Qt.AlignLeft)
+        
+        KeyPickButton = qtw.QPushButton("Pilih File")  
+        KeyPickButton.clicked.connect(lambda: pickKey()) 
+        KeyPickerLayout.layout().addWidget(KeyPickButton,4,0,1,2,Qt.AlignVCenter)
+
+        self.layout.addWidget(KeyPickerLayout,1,0)
+    
+        SignTypeLayout = qtw.QGroupBox()
+        SignTypeLayout.setLayout(qtw.QGridLayout())        
+
+        stextLabel = qtw.QLabel("Tipe Tanda Tangan", self)
+        stextLabel.setFont(getFont)
+
+        SignTypeLayout.layout().addWidget(stextLabel,0,0,1,2,Qt.AlignTop)
+
+        self.b1 = qtw.QRadioButton("Tanda tangan dalam file")
+        self.b1.setChecked(True)
+        # self.b1.toggled.connect(lambda:self.btnstate(self.b1))
+
+        SignTypeLayout.layout().addWidget(self.b1,1,0,Qt.AlignLeft)
+
+        self.b2 = qtw.QRadioButton("Tanda tangan terpisah")
+        # self.b2.toggled.connect(lambda:self.btnstate(self.b2))
+
+        SignTypeLayout.layout().addWidget(self.b2,2,0,Qt.AlignLeft)
+        
+        self.layout.addWidget(SignTypeLayout,2,0)
+
+        FileDisplayLayout = qtw.QGroupBox()
+        FileDisplayLayout.setLayout(qtw.QVBoxLayout())
+
+        FileDisplayTitle = qtw.QLabel("Konten File",self)
+        FileDisplayTitle.setFont(getFont)
+
+        FileDetail = qtw.QPlainTextEdit(self)
+        FileDetail.setReadOnly(True)
+        FileDetail.setPlainText("")
+
+        FileDisplayLayout.layout().addWidget(FileDisplayTitle,0,Qt.AlignTop)
+        FileDisplayLayout.layout().addWidget(FileDetail,1,Qt.AlignVCenter)
+
+        self.layout.addWidget(FileDisplayLayout,0,1,2,1)
+
+        SignMeButton = qtw.QPushButton("Tanda Tangan")  
+        SignMeButton.clicked.connect(lambda: sign()) 
+        self.layout.addWidget(SignMeButton,2,1,Qt.AlignVCenter)
+
+
