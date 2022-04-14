@@ -12,7 +12,7 @@ def embedKey(key,file):
 
 def saveKey(key,name):
     try:
-        with open(f"{name}.txt", "w") as myfile:
+        with open(f"{name}_key.txt", "w") as myfile:
             myfile.write(f"<DS>{key}</DS>")
     except Exception as E:
         raise(E)
