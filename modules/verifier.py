@@ -1,3 +1,6 @@
+from modules.RSA.decrypt import decryptBytes
+from modules.filehash import baseHash
+
 def extractFile(filedir:str) -> tuple:
     try:
         f = open(f"{filedir}","rb")
@@ -12,10 +15,18 @@ def extractFile(filedir:str) -> tuple:
     except Exception as E:
         raise(E)
 
+def verifyFile(filedir: str, e: int, n: int) -> bool:
+    fileBytes,signature = extractFile(filedir)
+    signatureBytes = bytes.fromhex(signature)
 
-if __name__ == "__main__":
-    fileSigned,key = extractFile("signed_example.png")
-    f = open("example.png","rb")
-    fileUnsigned = f.read()
-    print(fileSigned==fileUnsigned)
+    md = baseHash(fileBytes)
+    
+    decryptedMd = decryptBytes(signatureBytes, e, n)
+    return md==decryptedMd
+
+# if __name__ == "__main__":
+#     fileSigned,key = extractFile("signed_example.png")
+#     f = open("example.png","rb")
+#     fileUnsigned = f.read()
+#     print(fileSigned==fileUnsigned)
     
