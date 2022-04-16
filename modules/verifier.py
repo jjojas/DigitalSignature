@@ -15,9 +15,14 @@ def extractFile(filedir:str) -> tuple:
     except Exception as E:
         raise(E)
 
-def verifyFile(filedir: str, e: int, n: int) -> bool:
-    fileBytes,signature = extractFile(filedir)
-    signatureBytes = bytes.fromhex(signature)
+def openFile(bytedir: str, signdir:str) -> tuple:
+    try:
+        return (open(bytedir,"rb").read(),open(signdir,"r").read())
+    except Exception as E:
+        raise(E)
+
+def verifyFile(fileBytes: bytes, signature: str, e: int, n: int) -> bool:
+    signatureBytes = bytes.fromhex(signature.split("<DS>")[-1].split("</DS>")[0])
 
     md = baseHash(fileBytes)
     
