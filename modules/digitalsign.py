@@ -1,9 +1,9 @@
-
 from modules.RSA.encrypt import encryptBytes
 from modules.filehash import baseHash
 
 def createSignature(filedir: str, d: int, n: int) -> str:
     f = open(f"{filedir}","rb")
+    print("CS Called")
     fileBytes = f.read()
     f.close()
 
@@ -15,18 +15,18 @@ def createSignature(filedir: str, d: int, n: int) -> str:
 def embedKey(key,file):
     try:
         f = open(f"{file}", "rb")
-        g = open(f"signed_{file}","wb")
+        g = open(f"files/signed_{file.split('/')[-1]}","wb")
         g.write(f.read())
         f.close()
         g.close()
-        g = open(f"signed_{file}","a")
+        g = open(f"files/signed_{file.split('/')[-1]}","a")
         g.write(f"<DS>{key}</DS>")
     except Exception as E:
         raise(E)
 
 def saveKey(key,name):
     try:
-        with open(f"{name}_key.txt", "w") as myfile:
+        with open(f"signature/{name}_signature.txt", "w") as myfile:
             myfile.write(f"<DS>{key}</DS>")
     except Exception as E:
         raise(E)
