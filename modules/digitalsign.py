@@ -1,3 +1,17 @@
+
+from modules.RSA.encrypt import encryptBytes
+from modules.filehash import baseHash
+
+def createSignature(filedir: str, d: int, n: int) -> str:
+    f = open(f"{filedir}","rb")
+    fileBytes = f.read()
+    f.close()
+
+    md = baseHash(fileBytes)
+    print(md)
+    encryptedMd = encryptBytes(md, d, n)
+    return encryptedMd.hex()
+
 def embedKey(key,file):
     try:
         f = open(f"{file}", "rb")
@@ -17,7 +31,9 @@ def saveKey(key,name):
     except Exception as E:
         raise(E)
 
-if __name__ == "__main__":
-    key = "0d02cfc3d97f287b6f985c286666bff36a577569"
-    embedKey(key,"example.png")
-    saveKey(key,"Kuncis")
+# if __name__ == "__main__":
+#     key = "0d02cfc3d97f287b6f985c286666bff36a577569"
+#     embedKey(key,"example.png")
+#     saveKey(key,"Kuncis")
+
+# print(createSignature("./modules/example.png", 62093, 39203))
