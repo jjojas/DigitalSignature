@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox
 
-import modules.keygen as keyg
+import modules.digitalsign as digs
 
 cipherCache = ""
 
@@ -23,7 +23,7 @@ class digitalSignWidget(qtw.QWidget):
                     ftextLabel.setText(fileName)
                     FileDetail.setPlainText(str(open(fileName,"rb").read().decode("ISO-8859-1")))
                 else:
-                    ftextLabel.setText("Belum ada file dipilih!")
+                    ftextLabel.setText("Tidak ada file dipilih")
                     FileDetail.setPlainText("")
             except Exception as e:
                 msg = QMessageBox()
@@ -38,10 +38,10 @@ class digitalSignWidget(qtw.QWidget):
                 options |= qtw.QFileDialog.DontUseNativeDialog
                 fileName, _ = qtw.QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","Private key files (*.pri)", options=options)
                 if fileName:
-                    E,N = str(open(fileName,"rb").read().decode("ISO-8859-1")).split("|")
-                    ktextLabel.setText(f"E: {E}\nN: {N}")
+                    D,N = str(open(fileName,"rb").read().decode("ISO-8859-1")).split("|")
+                    ktextLabel.setText(f"D: {D}\nN: {N}")
                 else:
-                    ktextLabel.setText("Belum ada key dipilih!")
+                    ktextLabel.setText("Tidak ada kunci dipilih")
             except Exception as e:
                 msg = QMessageBox()
                 msg.setText("File key gagal dipilih")
@@ -51,12 +51,28 @@ class digitalSignWidget(qtw.QWidget):
 
         def sign():
             try:
-                if (self.b1.isChecked()):
-                    print("PILIHAN 1")
-                elif (self.b2.isChecked()):
-                    print("PILIHAN 2")
+                if ("Tidak ada file dipilih" in ftextLabel.text()):
+                        raise(Exception("file belum dipilih!"))
+                elif ("Tidak ada kunci dipilih" in ktextLabel.text()):
+                        raise(Exception("kunci belum dipilih!"))
                 else:
-                    print("ERROR")
+                        D,N = ktextLabel.text().split("\n")
+                        D,N = int(D.split(" ")[-1]),int(N.split(" ")[-1])
+                        sign = digs.createSignature(ftextLabel.text(),D,N)
+                        if (self.b1.isChecked()):
+                            digs.embedKey(sign,ftextLabel.text())
+                            msg = QMessageBox()
+                            msg.setText("Tanda tangan berhasil!")
+                            msg.setInformativeText(f'File dengan tanda tangan berhasil dibuat di files/signed_{ftextLabel.text().split("/")[-1]}')
+                            msg.setWindowTitle("Signed!")
+                            msg.exec_()
+                        elif (self.b2.isChecked()):
+                            digs.saveKey(sign,ftextLabel.text().split("/")[-1].split(".")[0])
+                            msg = QMessageBox()
+                            msg.setText("Tanda tangan berhasil!")
+                            msg.setInformativeText(f'Tanda tangan berhasil dibuat di signature/{ftextLabel.text().split("/")[-1].split(".")[0]}_signature.txt')
+                            msg.setWindowTitle("Signed!")
+                            msg.exec_()
             except Exception as e:
                 msg = QMessageBox()
                 msg.setText("Tanda tangan gagal!")
@@ -79,7 +95,7 @@ class digitalSignWidget(qtw.QWidget):
 
         FilePickerLayout.layout().addWidget(ftextLabel,0,0,1,2,Qt.AlignTop)
 
-        ftextLabel = qtw.QLabel("Tidak ada file dipilih!", self)
+        ftextLabel = qtw.QLabel("Tidak ada file dipilih", self)
 
         FilePickerLayout.layout().addWidget(ftextLabel,1,0,Qt.AlignLeft)
         
@@ -93,7 +109,7 @@ class digitalSignWidget(qtw.QWidget):
         KeyPickerLayout = qtw.QGroupBox()
         KeyPickerLayout.setLayout(qtw.QGridLayout())        
 
-        ktextLabel = qtw.QLabel("Pilih Kunci", self)
+        ktextLabel = qtw.QLabel("Pilih Kunci Privat", self)
         ktextLabel.setFont(getFont)
 
         KeyPickerLayout.layout().addWidget(ktextLabel,0,0,1,2,Qt.AlignTop)
