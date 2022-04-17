@@ -22,12 +22,13 @@ def openFile(bytedir: str, signdir:str) -> tuple:
         raise(E)
 
 def verifyFile(fileBytes: bytes, signature: str, e: int, n: int) -> bool:
-    signatureBytes = bytes.fromhex(signature.split("<DS>")[-1].split("</DS>")[0])
-
-    md = baseHash(fileBytes)
-    
-    decryptedMd = decryptBytes(signatureBytes, e, n)
-    return md==decryptedMd
+    try:
+        signatureBytes = bytes.fromhex(signature.split("<DS>")[-1].split("</DS>")[0])
+        md = baseHash(fileBytes)
+        decryptedMd = decryptBytes(signatureBytes, e, n)
+        return md==decryptedMd
+    except Exception as E:
+        raise(E)
 
 # if __name__ == "__main__":
 #     fileSigned,key = extractFile("signed_example.png")
