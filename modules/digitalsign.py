@@ -3,14 +3,16 @@ from modules.filehash import baseHash
 
 def createSignature(filedir: str, d: int, n: int) -> str:
     f = open(f"{filedir}","rb")
-    print("CS Called")
     fileBytes = f.read()
-    f.close()
+    if (b"<DS>" in fileBytes) and (b"</DS>" in fileBytes):
+        raise(Exception("file sudah ditandatangani!"))
+    else:
+        f.close()
 
-    md = baseHash(fileBytes)
-    print(md)
-    encryptedMd = encryptBytes(md, d, n)
-    return encryptedMd.hex()
+        md = baseHash(fileBytes)
+        print(md)
+        encryptedMd = encryptBytes(md, d, n)
+        return encryptedMd.hex()
 
 def embedKey(key,file):
     try:
