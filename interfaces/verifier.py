@@ -80,6 +80,8 @@ class verifierWidget(qtw.QWidget):
                                 raise(Exception("tanda tangan belum dipilih!"))
                             else:
                                 filebytes,signature = ver.openFile(ftextLabel.text(),stextLabel.text())
+                        
+                        print(f"Check res {ver.verifyFile(filebytes,signature,E,N)}")
                         if (ver.verifyFile(filebytes,signature,E,N)):
                                 msg = QMessageBox()
                                 msg.setText("Tanda tangan berhasil diverifikasi!")
