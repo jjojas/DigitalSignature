@@ -9,10 +9,9 @@ def createSignature(filedir: str, d: int, n: int) -> str:
     else:
         f.close()
 
-        md = baseHash(fileBytes)
-        print(md)
-        encryptedMd = encryptBytes(md, d, n)
-        return encryptedMd.hex()
+    md = baseHash(fileBytes)
+    encryptedMd = encryptBytes(md, d, n)
+    return encryptedMd.hex()
 
 def embedKey(key,file):
     try:
@@ -32,10 +31,3 @@ def saveKey(key,name):
             myfile.write(f"<DS>{key}</DS>")
     except Exception as E:
         raise(E)
-
-# if __name__ == "__main__":
-#     key = "0d02cfc3d97f287b6f985c286666bff36a577569"
-#     embedKey(key,"example.png")
-#     saveKey(key,"Kuncis")
-
-# print(createSignature("./modules/example.png", 62093, 39203))
